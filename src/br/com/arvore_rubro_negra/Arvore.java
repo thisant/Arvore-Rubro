@@ -4,14 +4,92 @@ public class Arvore {
 	private No raiz;
 	private No TNULL;
 
-	private void preorder(No no) {
-		if (no != TNULL) {
-			System.out.print(no.dados + " ");
-			preorder(no.esquerdo);
-			preorder(no.direito);
+	public void inserir(long key) {
+		No no = new No();
+		no.pai = null;
+		no.dados = key;
+		no.esquerdo = TNULL;
+		no.direito = TNULL;
+		no.cor = 1;
+
+		No b = null;
+		No a = this.raiz;
+
+		while (a != TNULL) {
+			b = a;
+			if (no.dados < a.dados) {
+				a = a.esquerdo;
+			} else {
+				a = a.direito;
+			}
 		}
+
+		no.pai = b;
+		if (b == null) {
+			raiz = no;
+		} else if (no.dados < b.dados) {
+			b.esquerdo = no;
+		} else {
+			b.direito = no;
+		}
+
+		if (no.pai == null) {
+			no.cor = 0;
+			return;
+		}
+
+		if (no.pai.pai == null) {
+			return;
+		}
+
+		rotacionarInserir(no);
 	}
 
+	private void rotacionarInserir(No z) {
+		No tio;
+		while (z.pai.cor == 1) {
+			if (z.pai == z.pai.pai.direito) {
+				tio = z.pai.pai.esquerdo;
+				if (tio.cor == 1) {
+					tio.cor = 0;
+					z.pai.cor = 0;
+					z.pai.pai.cor = 1;
+					z = z.pai.pai;
+				} else {
+					if (z == z.pai.esquerdo) {
+						z = z.pai;
+						direitoRotacao(z);
+					}
+					z.pai.cor = 0;
+					z.pai.pai.cor = 1;
+					esquerdoRotacao(z.pai.pai);
+				}
+			} else {
+				tio = z.pai.pai.direito;
+
+				if (tio.cor == 1) {
+					tio.cor = 0;
+					z.pai.cor = 0;
+					z.pai.pai.cor = 1;
+					z = z.pai.pai;
+				} else {
+					if (z == z.pai.direito) {
+						z = z.pai;
+						esquerdoRotacao(z);
+					}
+
+					z.pai.cor = 0;
+					z.pai.pai.cor = 1;
+					direitoRotacao(z.pai.pai);
+				}
+			}
+			if (z == raiz) {
+				break;
+			}
+		}
+		raiz.cor = 0;
+	}
+	
 	private void inorder(No no) {
 		if (no != TNULL) {
 			inorder(no.esquerdo);
@@ -27,99 +105,21 @@ public class Arvore {
 			System.out.print(no.dados + " ");
 		}
 	}
-
-	public void inserir(long key) {
-		No no = new No();
-		no.pai = null;
-		no.dados = key;
-		no.esquerdo = TNULL;
-		no.direito = TNULL;
-		no.cor = 1;
-
-		No y = null;
-		No x = this.raiz;
-
-		while (x != TNULL) {
-			y = x;
-			if (no.dados < x.dados) {
-				x = x.esquerdo;
-			} else {
-				x = x.direito;
-			}
+	
+	private void preorder(No no) {
+		if (no != TNULL) {
+			System.out.print(no.dados + " ");
+			preorder(no.esquerdo);
+			preorder(no.direito);
 		}
-
-		no.pai = y;
-		if (y == null) {
-			raiz = no;
-		} else if (no.dados < y.dados) {
-			y.esquerdo = no;
-		} else {
-			y.direito = no;
-		}
-
-		if (no.pai == null) {
-			no.cor = 0;
-			return;
-		}
-
-		if (no.pai.pai == null) {
-			return;
-		}
-
-		corrigirInserir(no);
 	}
-
-	private void corrigirInserir(No k) {
-		No u;
-		while (k.pai.cor == 1) {
-			if (k.pai == k.pai.pai.direito) {
-				u = k.pai.pai.esquerdo;
-				if (u.cor == 1) {
-					u.cor = 0;
-					k.pai.cor = 0;
-					k.pai.pai.cor = 1;
-					k = k.pai.pai;
-				} else {
-					if (k == k.pai.esquerdo) {
-						k = k.pai;
-						direitoRotacao(k);
-					}
-					k.pai.cor = 0;
-					k.pai.pai.cor = 1;
-					esquerdoRotacao(k.pai.pai);
-				}
-			} else {
-				u = k.pai.pai.direito;
-
-				if (u.cor == 1) {
-					u.cor = 0;
-					k.pai.cor = 0;
-					k.pai.pai.cor = 1;
-					k = k.pai.pai;
-				} else {
-					if (k == k.pai.direito) {
-						k = k.pai;
-						esquerdoRotacao(k);
-					}
-
-					k.pai.cor = 0;
-					k.pai.pai.cor = 1;
-					direitoRotacao(k.pai.pai);
-				}
-			}
-			if (k == raiz) {
-				break;
-			}
-		}
-		raiz.cor = 0;
-	}
-
+	
 	private void remover(No no, long key) {
-		No z = TNULL;
-		No x, y;
+		No c = TNULL;
+		No a, b;
 		while (no != TNULL) {
 			if (no.dados == key) {
-				z = no;
+				c = no;
 			}
 
 			if (no.dados <= key) {
@@ -129,100 +129,100 @@ public class Arvore {
 			}
 		}
 
-		if (z == TNULL) {
+		if (c == TNULL) {
 			System.out.println("O nó não foi encontrado! ");
 			return;
 		}
 
-		y = z;
-		int yOriginalcor = y.cor;
-		if (z.esquerdo == TNULL) {
-			x = z.direito;
-			trocarNo(z, z.direito);
-		} else if (z.direito == TNULL) {
-			x = z.esquerdo;
-			trocarNo(z, z.esquerdo);
+		b = c;
+		int coloracao = b.cor;
+		if (c.esquerdo == TNULL) {
+			a = c.direito;
+			trocarNo(c, c.direito);
+		} else if (c.direito == TNULL) {
+			a = c.esquerdo;
+			trocarNo(c, c.esquerdo);
 		} else {
-			y = minimo(z.direito);
-			yOriginalcor = y.cor;
-			x = y.direito;
-			if (y.pai == z) {
-				x.pai = y;
+			b = minimo(c.direito);
+			coloracao = b.cor;
+			a = b.direito;
+			if (b.pai == c) {
+				a.pai = b;
 			} else {
-				trocarNo(y, y.direito);
-				y.direito = z.direito;
-				y.direito.pai = y;
+				trocarNo(b, b.direito);
+				b.direito = c.direito;
+				b.direito.pai = b;
 			}
 
-			trocarNo(z, y);
-			y.esquerdo = z.esquerdo;
-			y.esquerdo.pai = y;
-			y.cor = z.cor;
+			trocarNo(c, b);
+			b.esquerdo = c.esquerdo;
+			b.esquerdo.pai = b;
+			b.cor = c.cor;
 		}
-		System.out.println("O nó foi encontrado e removido! ");
-		if (yOriginalcor == 0) {
-			corrigirRemover(x);
+		System.out.println("O nó foi removido! ");
+		if (coloracao == 0) {
+			rotacionarRemover(a);
 		}
 	}
 
-	private void corrigirRemover(No x) {
-		No s;
-		while (x != raiz && x.cor == 0) {
-			if (x == x.pai.esquerdo) {
-				s = x.pai.direito;
-				if (s.cor == 1) {
-					s.cor = 0;
-					x.pai.cor = 1;
-					esquerdoRotacao(x.pai);
-					s = x.pai.direito;
+	private void rotacionarRemover(No a) {
+		No parente;
+		while (a != raiz && a.cor == 0) {
+			if (a == a.pai.esquerdo) {
+				parente = a.pai.direito;
+				if (parente.cor == 1) {
+					parente.cor = 0;
+					a.pai.cor = 1;
+					esquerdoRotacao(a.pai);
+					parente = a.pai.direito;
 				}
 
-				if (s.esquerdo.cor == 0 && s.direito.cor == 0) {
-					s.cor = 1;
-					x = x.pai;
+				if (parente.esquerdo.cor == 0 && parente.direito.cor == 0) {
+					parente.cor = 1;
+					a = a.pai;
 				} else {
-					if (s.direito.cor == 0) {
-						s.esquerdo.cor = 0;
-						s.cor = 1;
-						direitoRotacao(s);
-						s = x.pai.direito;
+					if (parente.direito.cor == 0) {
+						parente.esquerdo.cor = 0;
+						parente.cor = 1;
+						direitoRotacao(parente);
+						parente = a.pai.direito;
 					}
 
-					s.cor = x.pai.cor;
-					x.pai.cor = 0;
-					s.direito.cor = 0;
-					esquerdoRotacao(x.pai);
-					x = raiz;
+					parente.cor = a.pai.cor;
+					a.pai.cor = 0;
+					parente.direito.cor = 0;
+					esquerdoRotacao(a.pai);
+					a = raiz;
 				}
 			} else {
-				s = x.pai.esquerdo;
-				if (s.cor == 1) {
-					s.cor = 0;
-					x.pai.cor = 1;
-					direitoRotacao(x.pai);
-					s = x.pai.esquerdo;
+				parente = a.pai.esquerdo;
+				if (parente.cor == 1) {
+					parente.cor = 0;
+					a.pai.cor = 1;
+					direitoRotacao(a.pai);
+					parente = a.pai.esquerdo;
 				}
 
-				if (s.direito.cor == 0 && s.direito.cor == 0) {
-					s.cor = 1;
-					x = x.pai;
+				if (parente.direito.cor == 0 && parente.direito.cor == 0) {
+					parente.cor = 1;
+					a = a.pai;
 				} else {
-					if (s.esquerdo.cor == 0) {
-						s.direito.cor = 0;
-						s.cor = 1;
-						esquerdoRotacao(s);
-						s = x.pai.esquerdo;
+					if (parente.esquerdo.cor == 0) {
+						parente.direito.cor = 0;
+						parente.cor = 1;
+						esquerdoRotacao(parente);
+						parente = a.pai.esquerdo;
 					}
 
-					s.cor = x.pai.cor;
-					x.pai.cor = 0;
-					s.esquerdo.cor = 0;
-					direitoRotacao(x.pai);
-					x = raiz;
+					parente.cor = a.pai.cor;
+					a.pai.cor = 0;
+					parente.esquerdo.cor = 0;
+					direitoRotacao(a.pai);
+					a = raiz;
 				}
 			}
 		}
-		x.cor = 0;
+		a.cor = 0;
 	}
 
 	private No buscarno(No no, long key) {
@@ -251,15 +251,15 @@ public class Arvore {
 		if (raiz != TNULL) {
 			System.out.print(indent);
 			if (last) {
-				System.out.print("Direito-");
-				indent += "     ";
+				System.out.print("Direito: ");
+				indent += "";
 			} else {
-				System.out.print("Esquerdo-");
-				indent += "|    ";
+				System.out.print("Esquerdo: ");
+				indent += "";
 			}
 
-			String scor = raiz.cor == 1 ? "Vermelho" : "Preto";
-			System.out.println(raiz.dados + "(" + scor + ")");
+			String parenteCor = raiz.cor == 1 ? "Vermelho" : "Preto";
+			System.out.println(raiz.dados + " -" + parenteCor);
 			imprimir(raiz.esquerdo, indent, false);
 			imprimir(raiz.direito, indent, true);
 		}
@@ -267,10 +267,24 @@ public class Arvore {
 
 	public Arvore() {
 		TNULL = new No();
-		TNULL.cor = 0;
+		raiz = TNULL;
 		TNULL.esquerdo = null;
 		TNULL.direito = null;
-		raiz = TNULL;
+		TNULL.cor = 0;
+	}
+	
+	public No maximo(No no) {
+		while (no.direito != TNULL) {
+			no = no.direito;
+		}
+		return no;
+	}
+	
+	public No minimo(No no) {
+		while (no.esquerdo != TNULL) {
+			no = no.esquerdo;
+		}
+		return no;
 	}
 
 	public void preOrder() {
@@ -288,90 +302,76 @@ public class Arvore {
 	public No buscarNo(long k) {
 		return buscarno(this.raiz, k);
 	}
-
-	public No minimo(No no) {
-		while (no.esquerdo != TNULL) {
-			no = no.esquerdo;
-		}
-		return no;
-	}
-
-	public No maximo(No no) {
-		while (no.direito != TNULL) {
-			no = no.direito;
-		}
-		return no;
-	}
-
-	public No successor(No x) {
-		if (x.direito != TNULL) {
-			return minimo(x.direito);
-		}
-
-		No y = x.pai;
-		while (y != TNULL && x == y.direito) {
-			x = y;
-			y = y.pai;
-		}
-		return y;
-	}
-
-	public No predecessor(No x) {
-		if (x.esquerdo != TNULL) {
-			return maximo(x.esquerdo);
-		}
-
-		No y = x.pai;
-		while (y != TNULL && x == y.esquerdo) {
-			x = y;
-			y = y.pai;
-		}
-
-		return y;
-	}
-
-	public void esquerdoRotacao(No x) {
-		No y = x.direito;
-		x.direito = y.esquerdo;
-		if (y.esquerdo != TNULL) {
-			y.esquerdo.pai = x;
-		}
-		y.pai = x.pai;
-		if (x.pai == null) {
-			this.raiz = y;
-		} else if (x == x.pai.esquerdo) {
-			x.pai.esquerdo = y;
-		} else {
-			x.pai.direito = y;
-		}
-		y.esquerdo = x;
-		x.pai = y;
-	}
-
-	public void direitoRotacao(No x) {
-		No y = x.esquerdo;
-		x.esquerdo = y.direito;
-		if (y.direito != TNULL) {
-			y.direito.pai = x;
-		}
-		y.pai = x.pai;
-		if (x.pai == null) {
-			this.raiz = y;
-		} else if (x == x.pai.direito) {
-			x.pai.direito = y;
-		} else {
-			x.pai.esquerdo = y;
-		}
-		y.direito = x;
-		x.pai = y;
-	}
-
+	
 	public No getRaiz() {
 		return this.raiz;
 	}
+	
+	public No predecessor(No a) {
+		if (a.esquerdo != TNULL) {
+			return maximo(a.esquerdo);
+		}
 
+		No b = a.pai;
+		while (b != TNULL && a == b.esquerdo) {
+			a = b;
+			b = b.pai;
+		}
+
+		return b;
+	}
+
+	public No successor(No a) {
+		if (a.direito != TNULL) {
+			return minimo(a.direito);
+		}
+
+		No b = a.pai;
+		while (b != TNULL && a == b.direito) {
+			a = b;
+			b = b.pai;
+		}
+		return b;
+	}
+	
 	public void removerNo(long dados) {
 		remover(this.raiz, dados);
+	}
+	
+	public void direitoRotacao(No a) {
+		No b = a.esquerdo;
+		a.esquerdo = b.direito;
+		if (b.direito != TNULL) {
+			b.direito.pai = a;
+		}
+		b.pai = a.pai;
+		if (a.pai == null) {
+			this.raiz = b;
+		} else if (a == a.pai.direito) {
+			a.pai.direito = b;
+		} else {
+			a.pai.esquerdo = b;
+		}
+		b.direito = a;
+		a.pai = b;
+	}
+	
+	public void esquerdoRotacao(No a) {
+		No b = a.direito;
+		a.direito = b.esquerdo;
+		if (b.esquerdo != TNULL) {
+			b.esquerdo.pai = a;
+		}
+		b.pai = a.pai;
+		if (a.pai == null) {
+			this.raiz = b;
+		} else if (a == a.pai.esquerdo) {
+			a.pai.esquerdo = b;
+		} else {
+			a.pai.direito = b;
+		}
+		b.esquerdo = a;
+		a.pai = b;
 	}
 
 	public void Impressao() {
